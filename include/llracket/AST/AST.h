@@ -19,7 +19,7 @@ public:
   virtual void visit(Program &) {};
   virtual void visit(Expr &) {};
   virtual void visit(Prim &) {};
-  /*virtual void visit(Int &) = 0;*/
+  virtual void visit(Int &) = 0;
 };
 
 class AST {

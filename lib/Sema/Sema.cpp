@@ -4,7 +4,6 @@
 
 namespace {
 class ProgramCheck : public ASTVisitor {
-  llvm::StringSet<> Scope;
   bool HasError;
 
 public:
@@ -22,7 +21,10 @@ public:
   virtual void visit(Expr &Node) override {
     if (llvm::isa<Prim>(Node)) {
       Node.accept(*this);
-    } else if (llvm::isa<Int>(Node)) {
+      return;
+    }
+    if (llvm::isa<Int>(Node)) {
+      Node.accept(*this);
       return;
     }
     HasError = true;
@@ -44,6 +46,8 @@ public:
       return;
     }
   }
+
+  virtual void visit(Int &Node) override { return; }
 };
 } // namespace
 
