@@ -7,13 +7,6 @@ class ProgramCheck : public ASTVisitor {
   llvm::StringSet<> Scope;
   bool HasError;
 
-  enum ErrorType { Twice, Not };
-  void error(ErrorType ET, llvm::StringRef V) {
-    llvm::errs() << "Variable " << V << " " << (ET == Twice ? "already" : "not")
-                 << "declared\n";
-    HasError = true;
-  }
-
 public:
   ProgramCheck() : HasError(false) {}
 
@@ -28,21 +21,28 @@ public:
 
   virtual void visit(Expr &Node) override {
     if (llvm::isa<Prim>(Node)) {
-      auto &PrimNode = llvm::cast<Prim>(Node);
-      if (PrimNode.getOp() == tok::kw_READ)
-        return;
-      if (PrimNode.getOp() == tok::minus) {
-        if (PrimNode.getE1() and !PrimNode.getE2())
-          PrimNode.getE1()->accept(*this);
-        return;
-      }
-      if (PrimNode.getOp() == tok::plus || PrimNode.getOp() == tok::minus) {
-        PrimNode.getE1()->accept(*this);
-        PrimNode.getE2()->accept(*this);
-        return;
-      }
+      Node.accept(*this);
+    } else if (llvm::isa<Int>(Node)) {
+      return;
     }
     HasError = true;
+  }
+
+  virtual void visit(Prim &Node) override {
+    auto &PrimNode = llvm::cast<Prim>(Node);
+    if (PrimNode.getOp() == tok::read) {
+      return;
+    }
+    if (PrimNode.getOp() == tok::minus) {
+      if (PrimNode.getE1() and !PrimNode.getE2())
+        PrimNode.getE1()->accept(*this);
+      return;
+    }
+    if (PrimNode.getOp() == tok::plus || PrimNode.getOp() == tok::minus) {
+      PrimNode.getE1()->accept(*this);
+      PrimNode.getE2()->accept(*this);
+      return;
+    }
   }
 };
 } // namespace

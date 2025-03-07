@@ -16,8 +16,9 @@ PUNCTUATOR(l_paren, "(")
 PUNCTUATOR(r_paren, ")")
 PUNCTUATOR(plus, "+")
 PUNCTUATOR(minus, "-")
+PUNCTUATOR(read, "read")
 
-KEYWORD(READ, KEYALL)
+// KEYWORD(LET, KEYALL)
 
 #undef KEYWORD
 #undef PUNCTUATOR

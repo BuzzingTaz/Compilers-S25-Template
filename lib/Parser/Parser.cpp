@@ -8,7 +8,8 @@ using namespace llracket;
 using tok::TokenKind;
 
 AST *Parser::parse() {
-  AST *Res = llvm::dyn_cast<AST>(parseExpr());
+  Program *P = new Program(parseExpr());
+  AST *Res = llvm::dyn_cast<AST>(P);
   expect(TokenKind::eof);
   return Res;
 }
@@ -22,11 +23,11 @@ Expr *Parser::parseExpr() {
   if (!consume(TokenKind::l_paren))
     goto _error;
 
-  if (Tok.is(TokenKind::kw_READ)) {
+  if (Tok.is(TokenKind::read)) {
     advance();
     if (!consume(TokenKind::r_paren))
       goto _error;
-    return new Prim(TokenKind::kw_READ);
+    return new Prim(TokenKind::read);
   }
 
   if (Tok.is(TokenKind::plus)) {

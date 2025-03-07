@@ -18,6 +18,7 @@ public:
   /*virtual void visit(AST &) {};*/
   virtual void visit(Program &) {};
   virtual void visit(Expr &) {};
+  virtual void visit(Prim &) {};
   /*virtual void visit(Int &) = 0;*/
 };
 

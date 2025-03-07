@@ -15,6 +15,10 @@ LLVM_READNONE inline static bool isLetter(char c) {
 LLVM_READNONE inline static bool isAlphanumeric(char c) {
   return isLetter(c) || isDigit(c);
 }
+
+LLVM_READNONE inline static bool isAlphanumeric_(char c) {
+  return isAlphanumeric(c) || c == '_';
+}
 } // namespace charinfo
 
 void Lexer::next(Token &token) {
@@ -31,6 +35,19 @@ void Lexer::next(Token &token) {
     while (charinfo::isDigit(*End))
       ++End;
     formToken(token, End, TokenKind::integer_literal);
+    return;
+  }
+  if (charinfo::isLetter(*BufferPtr)) {
+    const char *End = BufferPtr + 1;
+    while (charinfo::isAlphanumeric_(*End))
+      ++End;
+
+    llvm::StringRef Text(BufferPtr, End - BufferPtr);
+    if (Text == "read") {
+      formToken(token, End, TokenKind::read);
+      return;
+    }
+    formToken(token, End, TokenKind::unknown);
     return;
   }
 
