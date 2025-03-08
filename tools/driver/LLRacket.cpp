@@ -11,6 +11,9 @@
 static llvm::cl::opt<std::string> Input(llvm::cl::Positional,
                                         llvm::cl::desc("<input file>"),
                                         llvm::cl::Required);
+static llvm::cl::opt<std::string> Output("o", llvm::cl::desc("Output file"),
+                                         llvm::cl::value_desc("filename"),
+                                         llvm::cl::init("a.ll"));
 
 int main(int argc_, const char **argv_) {
   llvm::InitLLVM X(argc_, argv_);
@@ -35,4 +38,31 @@ int main(int argc_, const char **argv_) {
   Compiler.exec();
 
   return 0;
+}
+
+void LLRacket::exec() {
+  // Parse the program to AST
+  Lexer Lex(*SrcMgr, Diags);
+  Parser P(Lex);
+  AST *Tree = P.parse();
+  if (!Tree || Diags.numErrors()) {
+    llvm::errs() << "Syntax error\n";
+    return;
+  }
+
+  // Semantic analysis
+  Sema S;
+  if (!S.semantic(Tree)) {
+    llvm::errs() << "Semantic error\n";
+    return;
+  }
+
+  // Compile to LLVM IR
+  CodeGen CG(Module.get(), Ctx.get());
+  CG.compile(Tree);
+
+  Module->print(llvm::outs(), nullptr);
+  // save to a .ll file
+  saveModuleToFile(Output);
+  return;
 }

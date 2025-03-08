@@ -2,6 +2,7 @@
 #define RACKETLLVM_H
 
 #include "llracket/Basic/Diagnostic.h"
+#include "llracket/CodeGen/CodeGen.h"
 #include "llracket/Lexer/Lexer.h"
 #include "llracket/Parser/Parser.h"
 #include "llracket/Sema/Sema.h"
@@ -28,30 +29,7 @@ public:
 
   SourceMgr *getSourceMgr() { return SrcMgr; }
 
-  void exec() {
-    // Parse the program to AST
-    Lexer Lex(*SrcMgr, Diags);
-    Parser P(Lex);
-    AST *Tree = P.parse();
-    if (!Tree || Diags.numErrors()) {
-      llvm::errs() << "Syntax error\n";
-      return;
-    }
-
-    // Semantic analysis
-    Sema S;
-    if (!S.semantic(Tree)) {
-      llvm::errs() << "Semantic error\n";
-      return;
-    }
-
-    // Compile to LLVM IR
-
-    Module->print(llvm::outs(), nullptr);
-    // save to a .ll file
-    saveModuleToFile("./out.ll");
-    return;
-  }
+  void exec();
 
 private:
   std::unique_ptr<llvm::LLVMContext> Ctx;

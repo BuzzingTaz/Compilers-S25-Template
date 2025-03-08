@@ -15,7 +15,7 @@ class Int;
 
 class ASTVisitor {
 public:
-  /*virtual void visit(AST &) {};*/
+  virtual ~ASTVisitor() {}
   virtual void visit(Program &) {};
   virtual void visit(Expr &) {};
   virtual void visit(Prim &) {};
