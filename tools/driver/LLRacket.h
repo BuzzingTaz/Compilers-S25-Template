@@ -29,7 +29,7 @@ public:
 
   SourceMgr *getSourceMgr() { return SrcMgr; }
 
-  void exec();
+  int exec();
 
 private:
   std::unique_ptr<llvm::LLVMContext> Ctx;

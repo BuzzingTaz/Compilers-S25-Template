@@ -18,6 +18,7 @@ PUNCTUATOR(plus, "+")
 PUNCTUATOR(minus, "-")
 PUNCTUATOR(read, "read")
 
+// Keywords with feature flags
 // KEYWORD(LET, KEYALL)
 
 #undef KEYWORD

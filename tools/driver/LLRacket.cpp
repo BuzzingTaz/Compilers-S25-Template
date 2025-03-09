@@ -35,26 +35,24 @@ int main(int argc_, const char **argv_) {
   Compiler.getSourceMgr()->AddNewSourceBuffer(std::move(*FileOrErr),
                                               llvm::SMLoc());
 
-  Compiler.exec();
-
-  return 0;
+  return Compiler.exec();
 }
 
-void LLRacket::exec() {
+int LLRacket::exec() {
   // Parse the program to AST
   Lexer Lex(*SrcMgr, Diags);
   Parser P(Lex);
   AST *Tree = P.parse();
   if (!Tree || Diags.numErrors()) {
     llvm::errs() << "Syntax error\n";
-    return;
+    return 1;
   }
 
   // Semantic analysis
   Sema S;
   if (!S.semantic(Tree)) {
     llvm::errs() << "Semantic error\n";
-    return;
+    return 2;
   }
 
   // Compile to LLVM IR
@@ -64,5 +62,5 @@ void LLRacket::exec() {
   Module->print(llvm::outs(), nullptr);
   // save to a .ll file
   saveModuleToFile(Output);
-  return;
+  return 0;
 }

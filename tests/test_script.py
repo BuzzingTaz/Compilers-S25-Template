@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 import os
 import subprocess
 import tempfile
@@ -16,7 +14,7 @@ parser.add_argument("--build-dir", required=True,
 args = parser.parse_args()
 
 
-def run_test(test_program, test_input, test_output, build_dir):
+def run_test(test_program, test_input, test_output, expect_error, build_dir, quiet=False):
     """
     Runs the multi-step test process for a given .rkt file.
     """
@@ -37,7 +35,11 @@ def run_test(test_program, test_input, test_output, build_dir):
         text=True,
     )
     if result.returncode != 0:
-        print(f"❌ Step 1 failed (llracket): {test_program}")
+        if expect_error:
+            if not quiet:
+                print(f"✅ Test passed (expected error): {test_name}")
+            return True
+        print(f"❌ Step 1 failed (llracket): {test_name}")
         print(result.stderr)
         return False
 
@@ -48,7 +50,7 @@ def run_test(test_program, test_input, test_output, build_dir):
         text=True,
     )
     if result.returncode != 0:
-        print(f"❌ Step 2 failed (llc): {test_program}")
+        print(f"❌ Step 2 failed (llc): {test_name}")
         print(result.stderr)
         return False
 
@@ -59,7 +61,7 @@ def run_test(test_program, test_input, test_output, build_dir):
         text=True,
     )
     if result.returncode != 0:
-        print(f"❌ Step 3 failed (clang): {test_program}")
+        print(f"❌ Step 3 failed (clang): {test_name}")
         print(result.stderr)
         return False
 
@@ -72,7 +74,7 @@ def run_test(test_program, test_input, test_output, build_dir):
         text=True,
     )
     if result.returncode != 0:
-        print(f"❌ Step 4 failed (executable): {test_program}")
+        print(f"❌ Step 4 failed (executable): {test_name}")
         print(result.stderr)
         return False
 
@@ -80,7 +82,7 @@ def run_test(test_program, test_input, test_output, build_dir):
     expected_output = test_output
 
     if result.stdout.strip() != expected_output.strip():
-        print(f"❌ Test failed: {test_program}")
+        print(f"❌ Test failed: {test_name}")
         print("Expected output:")
         print(expected_output)
         print("Actual output:")
@@ -88,7 +90,8 @@ def run_test(test_program, test_input, test_output, build_dir):
         return False
 
     # If everything matches, the test passes
-    print(f"✅ Test passed: {test_program}")
+    if not quiet:
+        print(f"✅ Test passed: {test_name}")
     return True
 
 
@@ -97,6 +100,9 @@ def main():
     build_test_dir = os.path.join(args.build_dir, "tests")
 
     os.makedirs(build_test_dir, exist_ok=True)
+
+    total_tests = 0
+    passed_tests = 0
 
     # Iterate over all files in the test directory
     for root, _, files in os.walk(source_test_dir):
@@ -110,17 +116,26 @@ def main():
                     root, file.replace(".rkt", ".rkt.in"))
                 test_output_file = os.path.join(
                     root, file.replace(".rkt", ".rkt.out"))
+                err_file = os.path.join(
+                    root, file.replace(".rkt", ".rkt.err"))
 
                 test_input = ""
                 test_output = ""
+                expect_compile_error = False
                 # Check if the input and output files exist
                 if os.path.exists(test_input_file):
                     test_input = open(test_input_file).read()
                 if os.path.exists(test_output_file):
                     test_output = open(test_output_file).read()
+                if os.path.exists(err_file):
+                    expect_compile_error = True
 
+                total_tests += 1
                 # Run the test
-                run_test(test_program, test_input, test_output, build_test_dir)
+                passed_tests += run_test(test_program, test_input, test_output,
+                                         expect_compile_error, build_test_dir, quiet=True)
+
+    print(f"Passed {passed_tests}/{total_tests} tests.")
 
 
 if __name__ == "__main__":
