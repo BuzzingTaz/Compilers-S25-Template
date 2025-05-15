@@ -58,14 +58,15 @@ public:
   virtual void visit(Prim &Node) override {
     if (Node.getOp() == tok::read) {
       llvm::Function *ReadFn;
-      if ((ReadFn = M->getFunction("read_int")) == nullptr) {
+      if ((ReadFn = M->getFunction("read_value")) == nullptr) {
         llvm::FunctionType *ReadFty =
             llvm::FunctionType::get(Int32Ty, {PtrTy}, false);
         ReadFn = llvm::Function::Create(
-            ReadFty, llvm::GlobalValue::ExternalLinkage, "read_int", M);
+            ReadFty, llvm::GlobalValue::ExternalLinkage, "read_value", M);
       }
-      llvm::AllocaInst *ReadInput =
-          Builder.CreateAlloca(PtrTy, nullptr, "read_input");
+
+      // Assuming only integer inputs
+      llvm::Value *ReadInput = llvm::ConstantInt::get(Int32Ty, 0, true);
       V = Builder.CreateCall(ReadFn, {ReadInput});
       return;
     }
