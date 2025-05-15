@@ -1,14 +1,10 @@
 #ifndef LLRACKET_BASIC_DIAGNOSTIC_H
 #define LLRACKET_BASIC_DIAGNOSTIC_H
 
-#include "llvm/ADT/StringRef.h"
-#include "llvm/Support/FormatVariadic.h"
+#include "llracket/Basic/LLVM.h"
 #include "llvm/Support/SourceMgr.h"
+#include "llvm/Support/FormatVariadic.h"
 
-using llvm::formatv;
-using llvm::SMLoc;
-using llvm::SourceMgr;
-using llvm::StringRef;
 
 namespace llracket {
 
@@ -31,7 +27,7 @@ public:
   unsigned numErrors() { return NumErrors; }
   template <typename... Args>
   void report(SMLoc Loc, unsigned DiagID, Args &&...Arguments) {
-    std::string Msg = formatv(getDiagnosticText(DiagID), Arguments...).str();
+    std::string Msg = llvm::formatv(getDiagnosticText(DiagID), Arguments...).str();
     SourceMgr::DiagKind Kind = getDiagnosticKind(DiagID);
     SrcMgr.PrintMessage(Loc, Kind, Msg);
     NumErrors += (Kind == SourceMgr::DK_Error);

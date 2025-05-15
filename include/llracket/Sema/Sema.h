@@ -2,11 +2,12 @@
 #define LLRACKET_SEMA_SEMA_H
 
 #include "llracket/AST/AST.h"
-#include "llracket/Lexer/Lexer.h"
+
+namespace llracket {
 
 class Sema {
 public:
   bool semantic(AST *Tree);
 };
-
+} // namespace llracket
 #endif

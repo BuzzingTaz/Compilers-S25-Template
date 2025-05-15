@@ -2,21 +2,17 @@
 #define RACKETLLVM_H
 
 #include "llracket/Basic/Diagnostic.h"
-#include "llracket/CodeGen/CodeGen.h"
-#include "llracket/Lexer/Lexer.h"
-#include "llracket/Parser/Parser.h"
-#include "llracket/Sema/Sema.h"
+#include "llracket/Basic/LLVM.h"
 #include "llvm/ADT/StringRef.h"
-#include <llvm/ADT/StringRef.h>
-#include <llvm/IR/IRBuilder.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Metadata.h>
-#include <llvm/IR/Module.h>
-#include <llvm/Support/SourceMgr.h>
-#include <llvm/Support/raw_ostream.h>
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Metadata.h"
+#include "llvm/IR/Module.h"
+#include "llvm/Support/raw_ostream.h"
 #include <memory>
 #include <system_error>
 
+namespace llracket {
 class LLRacket {
   SourceMgr *SrcMgr;
   DiagnosticsEngine Diags;
@@ -47,4 +43,5 @@ private:
     Module->print(OutLl, nullptr);
   }
 };
+} // namespace llracket
 #endif

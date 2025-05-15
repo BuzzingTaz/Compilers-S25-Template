@@ -2,8 +2,10 @@
 #define LLRACKET_CODEGEN_CODEGEN_H
 
 #include "llracket/AST/AST.h"
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+
+namespace llracket {
 
 class CodeGen {
   llvm::Module *M;
@@ -14,4 +16,5 @@ public:
   void compile(AST *Tree);
 };
 
+} // namespace llracket
 #endif

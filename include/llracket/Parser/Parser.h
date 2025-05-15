@@ -4,8 +4,9 @@
 #include "llracket/AST/AST.h"
 #include "llracket/Basic/Diagnostic.h"
 #include "llracket/Lexer/Lexer.h"
-#include "llvm/Support/raw_ostream.h"
 #include <vector>
+
+namespace llracket {
 
 class Parser {
   Lexer &Lex;
@@ -13,9 +14,9 @@ class Parser {
   DiagnosticsEngine &Diags;
 
   // {Received Token, Expected Token}
-  std::vector<std::pair<TokenKind, TokenKind>> UnexpectedTokens;
+  std::vector<std::pair<tok::TokenKind, tok::TokenKind>> UnexpectedTokens;
 
-  void error(TokenKind Kind) {
+  void error(tok::TokenKind Kind) {
     UnexpectedTokens.push_back({Tok.getKind(), Kind});
   }
 
@@ -29,7 +30,7 @@ class Parser {
     }
   }
 
-  bool expect(TokenKind Kind) {
+  bool expect(tok::TokenKind Kind) {
     if (Tok.getKind() != Kind) {
       error(Kind);
       return false;
@@ -37,7 +38,7 @@ class Parser {
     return true;
   }
 
-  bool consume(TokenKind Kind) {
+  bool consume(tok::TokenKind Kind) {
     if (!expect(Kind))
       return false;
     advance();
@@ -63,4 +64,5 @@ public:
     }
   }
 };
+} // namespace llracket
 #endif

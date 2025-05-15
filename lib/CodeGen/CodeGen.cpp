@@ -1,42 +1,43 @@
 #include "llracket/CodeGen/CodeGen.h"
-#include "llvm/ADT/StringMap.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
-#include "llvm/Support/raw_ostream.h"
 
-using namespace llvm;
+using namespace llracket;
 
 namespace {
 class ToIRVisitor : public ASTVisitor {
-  Module *M;
-  IRBuilder<> Builder;
-  Type *VoidTy;
-  Type *Int32Ty;
-  PointerType *PtrTy;
-  Constant *Int32Zero;
-  Value *V;
-  StringMap<Value *> nameMap;
+  llvm::Module *M;
+  llvm::IRBuilder<> Builder;
+  llvm::Type *VoidTy;
+  llvm::Type *Int32Ty;
+  llvm::PointerType *PtrTy;
+  llvm::Constant *Int32Zero;
+  llvm::Value *V;
+  StringMap<llvm::Value *> nameMap;
 
 public:
-  ToIRVisitor(Module *M) : M(M), Builder(M->getContext()) {
-    VoidTy = Type::getVoidTy(M->getContext());
-    Int32Ty = Type::getInt32Ty(M->getContext());
-    PtrTy = PointerType::getUnqual(M->getContext());
-    Int32Zero = ConstantInt::get(Int32Ty, 0, true);
+  ToIRVisitor(llvm::Module *M) : M(M), Builder(M->getContext()) {
+    VoidTy = llvm::Type::getVoidTy(M->getContext());
+    Int32Ty = llvm::Type::getInt32Ty(M->getContext());
+    PtrTy = llvm::PointerType::getUnqual(M->getContext());
+    Int32Zero = llvm::ConstantInt::get(Int32Ty, 0, true);
   }
 
   void run(AST *Tree) {
-    FunctionType *MainFty = FunctionType::get(Int32Ty, {Int32Ty, PtrTy}, false);
-    Function *MainFn =
-        Function::Create(MainFty, GlobalValue::ExternalLinkage, "main", M);
-    BasicBlock *BB = BasicBlock::Create(M->getContext(), "entry", MainFn);
+    llvm::FunctionType *MainFty =
+        llvm::FunctionType::get(Int32Ty, {Int32Ty, PtrTy}, false);
+    llvm::Function *MainFn = llvm::Function::Create(
+        MainFty, llvm::GlobalValue::ExternalLinkage, "main", M);
+    llvm::BasicBlock *BB =
+        llvm::BasicBlock::Create(M->getContext(), "entry", MainFn);
     Builder.SetInsertPoint(BB);
     Tree->accept(*this);
 
-    FunctionType *WriteFnTy = FunctionType::get(VoidTy, {Int32Ty}, false);
-    Function *WriteFn = Function::Create(
-        WriteFnTy, GlobalValue::ExternalLinkage, "write_int", M);
+    llvm::FunctionType *WriteFnTy =
+        llvm::FunctionType::get(VoidTy, {Int32Ty}, false);
+    llvm::Function *WriteFn = llvm::Function::Create(
+        WriteFnTy, llvm::GlobalValue::ExternalLinkage, "write_int", M);
     Builder.CreateCall(WriteFnTy, WriteFn, {V});
     Builder.CreateRet(Int32Zero);
   }
@@ -56,13 +57,14 @@ public:
 
   virtual void visit(Prim &Node) override {
     if (Node.getOp() == tok::read) {
-      Function *ReadFn;
+      llvm::Function *ReadFn;
       if ((ReadFn = M->getFunction("read_int")) == nullptr) {
-        FunctionType *ReadFty = FunctionType::get(Int32Ty, {PtrTy}, false);
-        ReadFn = Function::Create(ReadFty, GlobalValue::ExternalLinkage,
-                                  "read_int", M);
+        llvm::FunctionType *ReadFty =
+            llvm::FunctionType::get(Int32Ty, {PtrTy}, false);
+        ReadFn = llvm::Function::Create(
+            ReadFty, llvm::GlobalValue::ExternalLinkage, "read_int", M);
       }
-      AllocaInst *ReadInput =
+      llvm::AllocaInst *ReadInput =
           Builder.CreateAlloca(PtrTy, nullptr, "read_input");
       V = Builder.CreateCall(ReadFn, {ReadInput});
       return;
@@ -76,9 +78,9 @@ public:
     }
     if (Node.getOp() == tok::plus || Node.getOp() == tok::minus) {
       Node.getE1()->accept(*this);
-      Value *E1 = V;
+      llvm::Value *E1 = V;
       Node.getE2()->accept(*this);
-      Value *E2 = V;
+      llvm::Value *E2 = V;
       if (Node.getOp() == tok::plus) {
         V = Builder.CreateNSWAdd(E1, E2);
       } else {
@@ -91,7 +93,7 @@ public:
   virtual void visit(Int &Node) override {
     int Intval;
     Node.getValue().getAsInteger(10, Intval);
-    V = ConstantInt::get(Int32Ty, Intval, true);
+    V = llvm::ConstantInt::get(Int32Ty, Intval, true);
   };
 };
 }; // namespace

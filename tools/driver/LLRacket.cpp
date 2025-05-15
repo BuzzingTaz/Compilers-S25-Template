@@ -1,12 +1,18 @@
 #include "LLRacket.h"
 #include "llracket/Basic/Diagnostic.h"
-#include <llvm/ADT/StringRef.h>
-#include <llvm/IR/LLVMContext.h>
-#include <llvm/IR/Module.h>
-#include <llvm/Support/CommandLine.h>
-#include <llvm/Support/ErrorOr.h>
-#include <llvm/Support/InitLLVM.h>
-#include <llvm/Support/SourceMgr.h>
+#include "llracket/CodeGen/CodeGen.h"
+#include "llracket/Lexer/Lexer.h"
+#include "llracket/Parser/Parser.h"
+#include "llracket/Sema/Sema.h"
+#include "llvm/ADT/StringRef.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/Support/CommandLine.h"
+#include "llvm/Support/ErrorOr.h"
+#include "llvm/Support/InitLLVM.h"
+#include "llvm/Support/SourceMgr.h"
+
+using namespace llracket;
 
 static llvm::cl::opt<std::string> Input(llvm::cl::Positional,
                                         llvm::cl::desc("<input file>"),

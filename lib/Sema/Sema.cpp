@@ -1,6 +1,6 @@
 #include "llracket/Sema/Sema.h"
-#include "llvm/ADT/StringSet.h"
-#include "llvm/Support/raw_ostream.h"
+
+using namespace llracket;
 
 namespace {
 class ProgramCheck : public ASTVisitor {

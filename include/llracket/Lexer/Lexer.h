@@ -2,13 +2,12 @@
 #define LLRACKET_LEXER_LEXER_H
 
 #include "llracket/Basic/Diagnostic.h"
+#include "llracket/Basic/LLVM.h"
 #include "llracket/Lexer/Token.h"
-#include "llvm/ADT/StringRef.h"
 #include "llvm/Support/MemoryBuffer.h"
 #include "llvm/Support/SourceMgr.h"
 
-using llvm::StringRef;
-using namespace llracket;
+namespace llracket {
 
 class Lexer {
   unsigned CurrBuffer = 0;
@@ -38,9 +37,10 @@ public:
   Token peek(unsigned N = 0);
 
 private:
-  void formToken(Token &Result, const char *TokEnd, TokenKind Kind);
+  void formToken(Token &Result, const char *TokEnd, tok::TokenKind Kind);
 
   SMLoc getLoc() { return SMLoc::getFromPointer(BufferPtr); }
 };
 
+} // namespace llracket
 #endif

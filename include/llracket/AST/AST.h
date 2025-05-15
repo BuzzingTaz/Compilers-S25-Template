@@ -1,10 +1,11 @@
 #ifndef LLRACKET_AST_AST_H
 #define LLRACKET_AST_AST_H
 
-#include "llracket/Lexer/Token.h"
+#include "llracket/Basic/LLVM.h"
+#include "llracket/Basic/TokenKinds.h"
 #include <any>
-#include <llvm/ADT/StringMap.h>
-#include <llvm/ADT/StringRef.h>
+
+namespace llracket {
 
 class AST;
 class Program;
@@ -57,17 +58,17 @@ public:
 };
 
 class Prim : public Expr {
-  TokenKind Op;
+  tok::TokenKind Op;
   Expr *E1 = NULL;
   Expr *E2 = NULL;
 
 public:
-  Prim(TokenKind Op) : Expr(ExprPrim), Op(Op) {};
-  Prim(TokenKind Op, Expr *E1) : Expr(ExprPrim), Op(Op), E1(E1) {};
-  Prim(TokenKind Op, Expr *E1, Expr *E2)
+  Prim(tok::TokenKind Op) : Expr(ExprPrim), Op(Op) {};
+  Prim(tok::TokenKind Op, Expr *E1) : Expr(ExprPrim), Op(Op), E1(E1) {};
+  Prim(tok::TokenKind Op, Expr *E1, Expr *E2)
       : Expr(ExprPrim), Op(Op), E1(E1), E2(E2) {};
 
-  TokenKind getOp() const { return Op; };
+  tok::TokenKind getOp() const { return Op; };
   Expr *getE1() const { return E1; };
   Expr *getE2() const { return E2; };
 
@@ -87,4 +88,5 @@ public:
   static bool classof(const Expr *E) { return true; }
 };
 
+} // namespace llracket
 #endif
